@@ -16,14 +16,20 @@
 package it.cnr.isti.hpc.wikipedia.article.it;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.hasItems;
+
 import it.cnr.isti.hpc.wikipedia.article.Article;
 import it.cnr.isti.hpc.wikipedia.article.Language;
+import it.cnr.isti.hpc.wikipedia.article.Link;
+import it.cnr.isti.hpc.wikipedia.article.ParagraphWithLinks;
 import it.cnr.isti.hpc.wikipedia.parser.ArticleParser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -38,11 +44,15 @@ public class ArticleTest {
 	private static Article a = new Article();
 	private static ArticleParser articleParser = new ArticleParser(Language.IT);
 
+
+
+
 	@BeforeClass
 	public static void loadArticle() throws IOException {
 		String text = readFileAsString("/it/xml-dump/article.txt");
 
 		articleParser.parse(a, text);
+
 	}
 
 	@Test
@@ -66,9 +76,16 @@ public class ArticleTest {
 	@Test
 	public void links() throws IOException {
 
-		assertEquals("strumento musicale", a.getLinks().get(0).getAnchor());
-		assertEquals("Giovanni Tamburini",
-				a.getLinks().get(a.getLinks().size() - 1).getAnchor());
+		List<String> anchors = new ArrayList<String>();
+
+		for (ParagraphWithLinks p : a.getParagraphsWithLinks()) {
+			for(Link l:p.getLinks()){
+				anchors.add(l.getAnchor());
+			}
+		}
+
+		assertThat(anchors, hasItems("strumento musicale", "Giovanni Tamburini"));
+
 
 	}
 

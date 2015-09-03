@@ -3,7 +3,10 @@ package de.tudarmstadt.ukp.wikipedia.parser;
 import de.tudarmstadt.ukp.wikipedia.api.WikiConstants;
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParser;
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParserFactory;
+import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.ModularParser;
 import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.matchers.JUnitMatchers.*;
@@ -157,6 +160,39 @@ public class ParserTest {
 
         testAnchorsInText(pp);
     }
+
+	@Test
+	public void testExtractingLinksOtherLang(){
+
+		String text = "* La Douceur de croire, pièce en trois actes, Théâtre Français, 8 July 1899\n" +
+				"\n" +
+				"[[:France]]In collaboration with [[:fr:André Delavigne]] " +
+				"* Blakson père [[::::::Potato|Pommes]] et fils,[[fr:Something]] comédie en quatre actes, Théâtre de l'Odéon\n" +
+				"* Les petites  marmites, comédie en trois actes, Théâtre du Gymnase\n" +
+				"[[cite:Gundam]] * Voilà Monsieur !, comédie en un acte, Théâtre du Gymnase";
+
+		MediaWikiParserFactory pf = new MediaWikiParserFactory(WikiConstants.Language.english);
+		MediaWikiParser parser = pf.createParser();
+
+		ParsedPage pp = parser.parse(text);
+
+		List<String> uris = getUrisInParagraphs(pp);
+		assertFalse(uris.contains("André_Delavigne"));
+		assertFalse(uris.contains("Something"));
+		assertThat(uris, hasItems("France", "Potato", "cite:Gundam"));
+		assert(uris.size()==3);
+
+		// Making sure Links with ":" are considered Internals
+		Link andreAnnotation = getLink(pp, "France");
+		assertEquals(andreAnnotation.getType(), Link.type.INTERNAL);
+
+		Link potato = getLink(pp, "Potato");
+		assertEquals(potato.getType(), Link.type.INTERNAL);
+		assertEquals(potato.getText(), "Pommes");
+
+		testAnchorsInText(pp);
+
+	}
 
 
 
