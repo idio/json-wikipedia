@@ -15,14 +15,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import de.tudarmstadt.ukp.wikipedia.parser.*;
 import de.tudarmstadt.ukp.wikipedia.parser.Content.FormatType;
+import org.apache.commons.math3.util.Pair;
 
 
 /**
@@ -36,23 +37,6 @@ import de.tudarmstadt.ukp.wikipedia.parser.Content.FormatType;
 public class ModularParser implements MediaWikiParser,
 		MediaWikiContentElementParser
 {
-
-	//Link has namespace but is not image
-	String[] namespaces = {"image", "talk", "user", "project", "file", "project_talk", "mediaWiki",
-			"mediaWiki_talk", "template", "template_talk", "help", "help_talk",
-			"category", "category_talk", "thread", "thread_talk", "summary",
-			"summary_talk", "relation", "relation_talk", "property",
-			"property_talk", "type", "type_talk", "form", "form_talk", "concept",
-			"concept_talk", "forum", "forum_talk", "cite", "cite_talk", "relation",
-			"media", "special", "userwiki", "userwiki_talk", "user_profile",
-			"user_profile_talk", "page", "page_talk", "index", "index_talk",
-			"widget", "widget_talk", "jsapplet", "jsapplet_talk", "poll", "poll_talk",
-			"imageannotation", "layer", "layer_talk", "quiz", "quiz_talk", "translations",
-			"translations_talk", "module", "module_talk", "imageidentifers", "wikipedia",
-	        "meta", "additional", "portal", "project", "userbox", "userbox_talk", "interpretation",
-	        "interpretation_talk"};
-
-	Set<String> allNamespaces = new HashSet<String>(java.util.Arrays.asList(namespaces));
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -498,7 +482,8 @@ public class ModularParser implements MediaWikiParser,
 
 		for (int i = links.size() - 1; i >= 0; i--)
 		{
-			String identifer = getLinkNameSpace(links.get(i).getTarget());
+			Pair<String, String> NESF = getLinkNameSpace(links.get(i).getTarget());
+			String identifer = NESF.getFirst();
 
 			if (identifer != null && identifers.indexOf(identifer) != -1)
 			{
@@ -1515,22 +1500,77 @@ public class ModularParser implements MediaWikiParser,
 		}
 	}
 
-	/**
-	 * Returns the LOWERCASE NameSpace of the link target
+	/*
+	 * returns a pair <Namespace, TopicId>
 	 */
-	private static String getLinkNameSpace(String target)
+	public static Pair<String, String> extractNETopic(String target)
 	{
 		int pos = target.indexOf(':');
 		if (pos == -1)
 		{
-			return null;
+			// Doesnt have any NE
+			// i.e: Michael Jackson
+			return new Pair<String,String>(null, target);
 		}
 		else
 		{
-			return target.substring(0, pos).replace('_', ' ').trim()
-					.toLowerCase();
+			// with NE i.e:
+			//  cite:Michael Jackson -> ne: cite, topic: Michael Jacson
+			// ::cite:Michael Jackson -> ne: cite, topic: Michael Jacson
+			// :en:h20:A -> ne: en, Topic: h20:A
+			Pattern patternNE = Pattern.compile(":*([^:]+):(.+)");
+			Matcher m = patternNE.matcher(target);
+			if(m.find()){
+				String ne = m.group(1);
+				String topic = m.group(2);
+				return new Pair<String,String>(ne, topic);
+
+			}else{
+				// With a colon but without NE
+				// i.e: :Michael Jackson
+				// i.e: ::::Michael Jackson
+				Pattern patternNoNameSpace = Pattern.compile(":*([^:]+.*)");
+				Matcher withoutNEMatches = patternNoNameSpace.matcher(target);
+				if(withoutNEMatches.find()){
+					String topic = withoutNEMatches.group(1);
+					return new Pair<String, String>(null, topic);
+				}
+				return new Pair<String,String>(null, target);
+			}
 		}
 	}
+
+	public static Pair<String, String> getLinkNameSpace(String target)
+	{
+		Pair<String, String> NeTopic = extractNETopic(target);
+
+		String extractedNe = NeTopic.getFirst();
+		String extractedTopicId = NeTopic.getSecond();
+
+		// No name space
+		// i.e: Michael Jackson -> ne: null, Topic:Michael Jackson
+		if(extractedNe==null){
+			return new Pair<String,String>(null, extractedTopicId);
+		}
+
+		// If it has a namespace that matches our list then don't change the Topic Id
+		// Other methods afterwards like language cleaning depends on this
+		// i.e: en:michael jackson  -> ne: ne, topic: en:Michael Jackson
+		//      cite:aaa -> -> ne: cite, Topic: cite:aaa
+		if (Namespaces.isNamespace(extractedNe) | Namespaces.isLanguage(extractedNe.toLowerCase()))
+		{
+			String topic = extractedNe + ":" + extractedTopicId;
+			return new Pair<String, String>(extractedNe.toLowerCase(), topic);
+		}
+
+		// If the namespace does not match any in our list
+		// it means the ne is part of the Topic ID.
+		// i.e: h20:Japanese Band -> ne: null, topic: h20:Japanese Band
+		String topic = extractedNe + ":" + extractedTopicId;
+		return new Pair<String, String>(null, topic);
+	}
+
+
 
 	/**
 	 * There is not much differences between links an images, so they are parsed
@@ -1589,8 +1629,12 @@ public class ModularParser implements MediaWikiParser,
 
 			// so it is a Link or image!!!
 			List<String> parameters;
+			Pair<String, String> pairNETopic = getLinkNameSpace(linkTarget);
+			String namespace = pairNETopic.getFirst();
+			String oldtarget = linkTarget;
+			linkTarget = pairNETopic.getSecond();
 
-			String namespace = getLinkNameSpace(linkTarget);
+
 			if (namespace != null)
 			{
 				if (imageIdentifers.indexOf(namespace) != -1)
@@ -1623,7 +1667,7 @@ public class ModularParser implements MediaWikiParser,
 				}
 				else
 				{
-					if (allNamespaces.contains(namespace.toLowerCase()))
+					if (Namespaces.allNamespaces.contains(namespace.toLowerCase()))
 					{
 						linkType = Link.type.UNKNOWN;
 					}
@@ -1646,8 +1690,31 @@ public class ModularParser implements MediaWikiParser,
 				linkType = Link.type.INTERNAL;
 			}
 
-			Span posSpan = new Span(linkTextStart, linkEndTag).trim(sm);
-			linkSpans.add(posSpan);
+			// Check if the Topic Id and the selected Topic Id are different
+			// So that the sacked off characters i.e: extra ":"
+			// are sacked off in the final output
+			int lenghtDiff = 0;
+			if(!Namespaces.isLanguage(namespace) && !Namespaces.isNamespace(namespace)){
+				lenghtDiff = oldtarget.length()  - linkTarget.length();
+			}
+
+			Span posSpan;
+
+			if(sm.indexOf("|", linkStartTag, linkEndTag) == -1){
+				// If an annotation did not specify a  a SF
+				// In that case try to clean the NE from the Topic Id
+				//i.e: [[Annotation]]
+				posSpan = new Span(linkTextStart + lenghtDiff, linkEndTag).trim(sm);
+				linkSpans.add(posSpan);
+			}else{
+				// If an annotation specified a SF then leave it as it is
+				// In that case take the surface form without any changes
+				// i.e: [[Annotation:Selected Surface Form]]
+				posSpan = new Span(linkTextStart, linkEndTag).trim(sm);
+				linkSpans.add(posSpan);
+			}
+
+
 
 			Link l = new Link(null, posSpan, linkTarget, linkType, parameters);
 			links.add(l);

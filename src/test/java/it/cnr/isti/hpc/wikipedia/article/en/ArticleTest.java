@@ -15,9 +15,7 @@
  */
 package it.cnr.isti.hpc.wikipedia.article.en;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.*;
 
 import it.cnr.isti.hpc.io.IOUtils;
@@ -33,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.cnr.isti.hpc.wikipedia.reader.WikipediaArticleReader;
+import org.apache.commons.math3.util.Pair;
 import org.junit.Test;
 
 /**
@@ -175,15 +174,9 @@ public class ArticleTest {
         String mediawiki = IOUtils.getFileAsUTF8String("./src/test/resources/en/Hayami");
         parser.parse(a, mediawiki);
 
-		List<String> uris = new ArrayList<String>();
-		List<String> anchors = new ArrayList<String>();
-
-		for (ParagraphWithLinks p : a.getParagraphsWithLinks()) {
-			for(Link l:p.getLinks()){
-				uris.add(l.getId());
-				anchors.add(l.getAnchor());
-			}
-		}
+		Pair<List<String>, List<String>> anchorsAndUris = getAnchorsAndUris(a);
+		List<String> anchors = anchorsAndUris.getFirst();
+		List<String> uris = anchorsAndUris.getSecond();
 
 		assertThat(uris, hasItems("Yū_Hayami", "Takumi_Hayami", "Hayami_District,_Ōita", "Mokomichi_Hayami", "H2O:_Footprints_in_the_Sand"));
 		assertThat(anchors, hasItems("Takumi Hayami", "Dogen Handa", "Sky Girls"));
@@ -205,6 +198,49 @@ public class ArticleTest {
         }
     }
 
+	@Test
+	public void testAnnotationsWithOtherNamespaces() throws IOException {
+		Article a = new Article();
+		String mediawiki = IOUtils.getFileAsUTF8String("./src/test/resources/en/article_with_weird_annotations.txt");
+		parser.parse(a, mediawiki);
+
+		Pair<List<String>, List<String>> anchorsAndUris = getAnchorsAndUris(a);
+		List<String> anchors = anchorsAndUris.getFirst();
+		List<String> uris = anchorsAndUris.getSecond();
+
+		assertThat(uris, hasItems("Topic", "Michael_Jackson", "Yuki", "Dodgy_Topic", "h2o:_japanese_band", "france","weird:annotation:with:many:colons", "Guildford_Castle"));
+		assertThat(anchors, hasItems(":surface:form", "Jackson", "J&M", "Dodgy Topic", "h2o: japanese band", "france", "weird:annotation:with:many:colons", "Guildford Castle"));
+		assert(uris.size()==8);
+
+		assertFalse(anchors.contains("::User:BadUser"));
+		assertFalse(anchors.contains(":User:BadUser"));
+		assertFalse(anchors.contains("::BadUser"));
+		assertFalse(anchors.contains(":BadUser"));
+		assertFalse(anchors.contains("BadUser"));
+		assertFalse(anchors.contains("es:inglaterra"));
+		assertFalse(anchors.contains("es:england"));
+		assertFalse(anchors.contains("inglaterra"));
+		assertFalse(anchors.contains("roman"));
+		assertFalse(anchors.contains("category:city"));
+		assertFalse(anchors.contains(":category:city"));
+		assertFalse(anchors.contains("city"));
+		assertFalse(anchors.contains(":city"));
+		assertFalse(anchors.contains("fleur"));
+
+		assertFalse(uris.contains("england"));
+		assertFalse(uris.contains("fr:WeirdFrench"));
+		assertFalse(uris.contains("WeirdFrench"));
+		assertFalse(uris.contains("inglaterra"));
+		assertFalse(uris.contains("roman"));
+		assertFalse(uris.contains("category:city"));
+		assertFalse(uris.contains(":category:city"));
+		assertFalse(uris.contains("city"));
+		assertFalse(uris.contains(":city"));
+
+		testAnchorsInText(a);
+
+	}
+
 
 	/*
 	* Matches the extracted anchors and spans against the text
@@ -217,6 +253,22 @@ public class ArticleTest {
 				assertEquals(anchorInPar, link.getAnchor());
 			}
 		}
+	}
+
+	private Pair<List<String>, List<String>> getAnchorsAndUris(Article a){
+
+		List<String> uris = new ArrayList<String>();
+		List<String> anchors = new ArrayList<String>();
+
+		for (ParagraphWithLinks p : a.getParagraphsWithLinks()) {
+			for(Link l:p.getLinks()){
+				uris.add(l.getId());
+				anchors.add(l.getAnchor());
+			}
+		}
+
+		return new Pair<List<String>, List<String>>(anchors, uris);
+
 	}
 
 }
