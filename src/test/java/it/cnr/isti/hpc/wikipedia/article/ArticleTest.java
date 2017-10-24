@@ -1,50 +1,50 @@
 package it.cnr.isti.hpc.wikipedia.article;
 
+import it.cnr.isti.hpc.io.IOUtils;
 import it.cnr.isti.hpc.wikipedia.parser.ArticleParser;
 import org.apache.commons.math3.util.Pair;
 import org.junit.Test;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.junit.Assert.*;
 
 /**
  * Created by dav009 on 05/01/2016.
  */
 public class ArticleTest {
 
-    @Test
-    public void testExtractingLinksFromGallery(){
+	@Test
+	public void testExtractingLinksFromGallery(){
 
-        String mediawiki =
-                "==Gallery==\n" +
-                        "<gallery heights=\"150\" widths=\"150\">\n" +
-                        "Jordantreppe Petersburg Eremitage 02.JPG\n" +
-                        "The State (Jordan, or Ambassadors') Staircase.jpg\n" +
-                        "The State (Jordan, or Ambassadors') Staircase 2.jpg\n" +
-                        "Hermitage St. Petersburg Interior 20021009.jpg\n" +
-                        "Hermitage staicase.jpg\n" +
-                        "Jordantreppe Decke Petersburg Eremitage.jpg\n" +
-                        "RIAN archive 139402 Main Staircase at the Hermitage.jpg\n" +
-                        "Jordan Staircase 9.JPG\n" +
-                        "</gallery>\n";
+		String mediawiki =
+				"==Gallery==\n" +
+						"<gallery heights=\"150\" widths=\"150\">\n" +
+						"Jordantreppe Petersburg Eremitage 02.JPG\n" +
+						"The State (Jordan, or Ambassadors') Staircase.jpg\n" +
+						"The State (Jordan, or Ambassadors') Staircase 2.jpg\n" +
+						"Hermitage St. Petersburg Interior 20021009.jpg\n" +
+						"Hermitage staicase.jpg\n" +
+						"Jordantreppe Decke Petersburg Eremitage.jpg\n" +
+						"RIAN archive 139402 Main Staircase at the Hermitage.jpg\n" +
+						"Jordan Staircase 9.JPG\n" +
+						"</gallery>\n";
 
-        ArticleParser parser = new ArticleParser(Language.EN);
-        Article a = new Article();
-        parser.parse(a, mediawiki);
+		ArticleParser parser = new ArticleParser(Language.EN);
+		Article a = new Article();
+		parser.parse(a, mediawiki);
 
 
-        assert(a.getLinks().isEmpty());
+		assert(a.getLinks().isEmpty());
 
-    }
+	}
 
-    protected Pair<List<String>, List<String>> getAnchorsAndUris(Article a){
+	protected Pair<List<String>, List<String>> getAnchorsAndUris(Article a){
 
 		List<String> uris = new ArrayList<String>();
 		List<String> anchors = new ArrayList<String>();
@@ -124,13 +124,39 @@ public class ArticleTest {
 	}
 
 	/*
+	* Test for inline ref parsing.
+	* */
+	@Test
+	public void testReferences() throws IOException {
+		ArticleParser parser = new ArticleParser(Language.EN);
+		Article a = new Article();
+		String mediawiki = IOUtils.getFileAsUTF8String("./src/test/resources/misc/anarchism.xml");
+		parser.parse(a, mediawiki);
+
+		// check that the first paragraph of anarchism has 10 refs detected.
+		List<Ref> refs = a.getParagraphsWithLinks().get(0).getRefs();
+		assertEquals(10, refs.size());
+
+		// Check first and last detected references inside values
+		Ref fistRef = refs.get(0);
+		assertEquals(157, fistRef.getStart());
+		assertEquals(435, fistRef.getEnd());
+		assertNotEquals(-1, fistRef.getText().indexOf("a social philosophy that rejects authoritarian government and maintains"));
+
+		Ref lastRef = refs.get(9);
+		assertEquals(2529, lastRef.getStart());
+		assertEquals(2713, lastRef.getEnd());
+		assertNotEquals(-1, lastRef.getText().indexOf("The Concise Oxford Dictionary of Politics. Ed. Iain McLean and Alistair McMillan"));
+	}
+
+	/*
 	* Get a list with all the annotated URIs
 	* */
 	private Link getLink(Article page, String uri){
 		for (Link link : page.getLinks()) {
-            if (uri.equals(link.getId()))
-                return link;
-        }
-        return null;
+			if (uri.equals(link.getId()))
+				return link;
+		}
+		return null;
 	}
 }

@@ -67,6 +67,7 @@ public class ArticleParser {
 	private static final Pattern patternNE = Pattern.compile(":*([^:]+):(.+)");
 	private static final Pattern patternNoNameSpace = Pattern.compile(":*([^:]+.*)");
 	private static final Pattern patternImage = Pattern.compile("([^\\s]+(\\.(?i)(jpg|png|gif|bmp))$)");
+	private static final Pattern refsPattern = Pattern.compile("(&lt;ref(.*?)&lt;/ref&gt;)|(&lt;ref((?s).*)&lt;/ref&gt;)");
 
 	private final MediaWikiParser parser;
 	private final Locale locale;
@@ -467,6 +468,7 @@ public class ArticleParser {
 		for (Paragraph p : AllParagraphs) {
 			String text = p.getText();
 			List<Link> links = new ArrayList<Link>();
+			List<Ref> refs = new ArrayList<Ref>();
 
 			text = text.replace("\n", " ");//.trim();
 			if (!text.isEmpty()){
@@ -475,8 +477,8 @@ public class ArticleParser {
 				Pair<List<Link>,List<Link>> extractedLinks = extractLinks(p.getLinks());
 				// internal links
 				links = extractedLinks.getLeft();
-
-				ParagraphWithLinks paragraphWithLinks = new ParagraphWithLinks(text, links);
+				refs = extractInlineReferences(text);
+				ParagraphWithLinks paragraphWithLinks = new ParagraphWithLinks(text, links, refs);
 				paraLinks.add(paragraphWithLinks);
 			}
 		}
@@ -632,5 +634,24 @@ public class ArticleParser {
 		Matcher m = patternImage.matcher(link.getTarget().toLowerCase());
 		return m.matches();
 	}
+
+    /**
+     * Returns a list with all the inline references found in a piece of text.
+     * @param text - A piece of text that contains inline references.
+     */
+    private List<Ref> extractInlineReferences(String text)
+    {
+        Matcher m = refsPattern.matcher(text.toString());
+        List<Ref> refs = new ArrayList();
+
+        while(m.find()) {
+            int start = m.start();
+            int end = m.end();
+            String refText = m.group(0);
+            refs.add(new Ref(refText, start, end));
+        }
+        return refs;
+    }
+
 
 }
