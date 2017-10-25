@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 /**
  * Created by dav009 on 05/01/2016.
  */
@@ -89,6 +91,15 @@ public class ArticleTest {
 		return fileData.toString();
 	}
 
+	/*
+	* Check a reference for expected values of start and end index, and expected text inside.
+	* */
+	public void checkRef(Ref ref, int start, int end, String text) {
+		assertEquals(start, ref.getStart());
+		assertEquals(end, ref.getEnd());
+		assertTrue(ref.getText().contains(text));
+	}
+
 	@Test
 	public void testExtractingLinksOtherLang(){
 
@@ -138,15 +149,12 @@ public class ArticleTest {
 		assertEquals(10, refs.size());
 
 		// Check first and last detected references inside values
-		Ref fistRef = refs.get(0);
-		assertEquals(157, fistRef.getStart());
-		assertEquals(435, fistRef.getEnd());
-		assertNotEquals(-1, fistRef.getText().indexOf("a social philosophy that rejects authoritarian government and maintains"));
+		Ref firstRef = refs.get(0);
+		checkRef(firstRef, 157, 435, "a social philosophy that rejects authoritarian government and maintains");
 
 		Ref lastRef = refs.get(9);
-		assertEquals(2529, lastRef.getStart());
-		assertEquals(2713, lastRef.getEnd());
-		assertNotEquals(-1, lastRef.getText().indexOf("The Concise Oxford Dictionary of Politics. Ed. Iain McLean and Alistair McMillan"));
+		checkRef(lastRef, 2529, 2713, "The Concise Oxford Dictionary of Politics. Ed. Iain McLean and Alistair McMillan");
+
 	}
 
 	/*

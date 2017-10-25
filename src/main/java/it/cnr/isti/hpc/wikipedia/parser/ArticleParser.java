@@ -67,7 +67,7 @@ public class ArticleParser {
 	private static final Pattern patternNE = Pattern.compile(":*([^:]+):(.+)");
 	private static final Pattern patternNoNameSpace = Pattern.compile(":*([^:]+.*)");
 	private static final Pattern patternImage = Pattern.compile("([^\\s]+(\\.(?i)(jpg|png|gif|bmp))$)");
-	private static final Pattern refsPattern = Pattern.compile("(&lt;ref(.*?)&lt;/ref&gt;)|(&lt;ref((?s).*)&lt;/ref&gt;)");
+	private static final Pattern refsPattern = Pattern.compile("((<|&lt;)ref(.?)/(&gt;|>))|((<|&lt;)ref(?s).*?)/ref(&gt;|>)");
 
 	private final MediaWikiParser parser;
 	private final Locale locale;
@@ -635,16 +635,16 @@ public class ArticleParser {
 		return m.matches();
 	}
 
-    /**
+	/**
      * Returns a list with all the inline references found in a piece of text.
      * @param text - A piece of text that contains inline references.
      */
-    private List<Ref> extractInlineReferences(String text)
+	protected List<Ref> extractInlineReferences(String text)
     {
-        Matcher m = refsPattern.matcher(text.toString());
-        List<Ref> refs = new ArrayList();
-
-        while(m.find()) {
+    	List<Ref> refs = new ArrayList();
+		if (text == null || text.isEmpty()) return refs;
+		Matcher m = refsPattern.matcher(text.toString());
+		while(m.find()) {
             int start = m.start();
             int end = m.end();
             String refText = m.group(0);

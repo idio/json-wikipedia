@@ -1,7 +1,9 @@
 package it.cnr.isti.hpc.wikipedia.article;
 
 /**
- *  This class represents inline wikipedia references. You can find the pattern to detect those inside ArticleParser.
+ *  This class represents inline wikipedia references.
+ *  You can find the pattern to detect those inside:
+ *  {@link it.cnr.isti.hpc.wikipedia.parser.ArticleParser#extractInlineReferences(String)  ArticleParser}
  *
  * Created by Stathis Charitos
  */
@@ -46,5 +48,4 @@ public class Ref {
     public void setText(String text) {
         this.text = text;
     }
-
 }
