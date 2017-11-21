@@ -67,6 +67,7 @@ public class ArticleParser {
 	private static final Pattern patternNE = Pattern.compile(":*([^:]+):(.+)");
 	private static final Pattern patternNoNameSpace = Pattern.compile(":*([^:]+.*)");
 	private static final Pattern patternImage = Pattern.compile("([^\\s]+(\\.(?i)(jpg|png|gif|bmp))$)");
+	private static final Pattern refsPattern = Pattern.compile("((<|&lt;)ref(.?)/(&gt;|>))|((<|&lt;)ref(?s).*?)/ref(&gt;|>)");
 
 	private final MediaWikiParser parser;
 	private final Locale locale;
@@ -88,23 +89,23 @@ public class ArticleParser {
 	}
 
 	public void parse(Article article, String mediawiki) {
-        if (mediawiki == null) {
-            logger.warn("Text is null for article {}", article.getTitle());
-        } else {
+		if (mediawiki == null) {
+			logger.warn("Text is null for article {}", article.getTitle());
+		} else {
 
-            for(String disambiguationKeyword:locale.getDisambigutionIdentifiers()){
-                if(StringUtils.containsIgnoreCase(mediawiki, ("{{" + disambiguationKeyword + "|")) || StringUtils.containsIgnoreCase(mediawiki, ("{{" + disambiguationKeyword + "}}"))) {
+			for(String disambiguationKeyword:locale.getDisambigutionIdentifiers()){
+				if(StringUtils.containsIgnoreCase(mediawiki, ("{{" + disambiguationKeyword + "|")) || StringUtils.containsIgnoreCase(mediawiki, ("{{" + disambiguationKeyword + "}}"))) {
 					logger.info(article.getTitle() + ": Setting disambiguation because it contains " + disambiguationKeyword);
 					article.setType(Type.DISAMBIGUATION);
 				}
-            }
+			}
 
-            String cleanedMediawiki = removeTemplates(mediawiki);
-            final ParsedPage page = parser.parse(cleanedMediawiki);
-            setRedirect(article, cleanedMediawiki);
+			String cleanedMediawiki = removeTemplates(mediawiki);
+			final ParsedPage page = parser.parse(cleanedMediawiki);
+			setRedirect(article, cleanedMediawiki);
 
-            parse(article, page);
-        }
+			parse(article, page);
+		}
 
 	}
 
@@ -316,8 +317,8 @@ public class ArticleParser {
 						if (!StringUtils.isEmpty(newLink.getId())) internalLinks.add(newLink);
 						break;
 					case INTERNAL:
-					    // Check if is missed image link, otherwise add to internal links.
-					    if (!isImage(t)) internalLinks.add(new Link(linkTarget, anchor, t.getPos().getStart(), t.getPos().getEnd()));
+						// Check if is missed image link, otherwise add to internal links.
+						if (!isImage(t)) internalLinks.add(new Link(linkTarget, anchor, t.getPos().getStart(), t.getPos().getEnd()));
 						break;
 					case EXTERNAL:
 						externalLinks.add(new Link(t.getTarget(), t.getText(), t.getPos().getStart(), t.getPos().getEnd()));
@@ -467,6 +468,7 @@ public class ArticleParser {
 		for (Paragraph p : AllParagraphs) {
 			String text = p.getText();
 			List<Link> links = new ArrayList<Link>();
+			List<Ref> refs = new ArrayList<Ref>();
 
 			text = text.replace("\n", " ");//.trim();
 			if (!text.isEmpty()){
@@ -475,8 +477,8 @@ public class ArticleParser {
 				Pair<List<Link>,List<Link>> extractedLinks = extractLinks(p.getLinks());
 				// internal links
 				links = extractedLinks.getLeft();
-
-				ParagraphWithLinks paragraphWithLinks = new ParagraphWithLinks(text, links);
+				refs = extractInlineReferences(text);
+				ParagraphWithLinks paragraphWithLinks = new ParagraphWithLinks(text, links, refs);
 				paraLinks.add(paragraphWithLinks);
 			}
 		}
@@ -621,10 +623,10 @@ public class ArticleParser {
 	}
 
 
-    /**
+	/**
 	 * Checks if provided link has an image pattern as target. Some links that get extracted from the &lt;gallery&gt;&lt;/gallery&gt;
 	 * section do not have the normal link structure, but are still parsed as links, so this function detects those.
- 	 * @param link - Link object
+	 * @param link - Link object
 	 * @return boolean - If its a link to an image.
 	 */
 	private boolean isImage(de.tudarmstadt.ukp.wikipedia.parser.Link link)
@@ -632,5 +634,24 @@ public class ArticleParser {
 		Matcher m = patternImage.matcher(link.getTarget().toLowerCase());
 		return m.matches();
 	}
+
+	/**
+	 * Returns a list with all the inline references found in a piece of text.
+	 * @param text - A piece of text that contains inline references.
+	 */
+	protected List<Ref> extractInlineReferences(String text)
+	{
+		List<Ref> refs = new ArrayList();
+		if (text == null || text.isEmpty()) return refs;
+		Matcher m = refsPattern.matcher(text.toString());
+		while(m.find()) {
+			int start = m.start();
+			int end = m.end();
+			String refText = m.group(0);
+			refs.add(new Ref(refText, start, end));
+		}
+		return refs;
+	}
+
 
 }
