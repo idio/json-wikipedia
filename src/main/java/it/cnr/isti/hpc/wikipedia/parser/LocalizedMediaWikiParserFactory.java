@@ -16,37 +16,36 @@
 package it.cnr.isti.hpc.wikipedia.parser;
 
 import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.MediaWikiParserFactory;
-import de.tudarmstadt.ukp.wikipedia.parser.mediawiki.Namespaces;
-
 /**
  * Generates a parser from the proper Locale.
- * 
+ *
  * @see Locale
- * 
+ *
  * @author Diego Ceccarelli <diego.ceccarelli@isti.cnr.it>
  *
  */
 public class LocalizedMediaWikiParserFactory extends MediaWikiParserFactory {
-	
+
 	private Locale locale;
-	
+
 	public LocalizedMediaWikiParserFactory(Locale locale){
 		super();
 		this.locale = locale;
-	
+
 		init();
 	}
-	
+
 	private void init(){
-		
+
 		for (String name : locale.getImageIdentifiers())
 			getImageIdentifers().add(name);
-		
+
 		for (String name : locale.getCategoryIdentifiers())
 			getCategoryIdentifers().add(name);
 
 		for (String name: locale.getNE())
-			getNE().add(name);
+			getCategoryIdentifers().add(name);
+
 	}
 
 }

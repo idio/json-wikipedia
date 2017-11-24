@@ -4,3 +4,5 @@ target/
 .settings/
 .DS_STORE
 javadoc
+.idea/
+json-wikipedia.iml

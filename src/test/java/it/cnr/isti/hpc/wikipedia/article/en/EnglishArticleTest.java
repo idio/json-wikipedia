@@ -15,19 +15,24 @@
  */
 package it.cnr.isti.hpc.wikipedia.article.en;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
-
 import it.cnr.isti.hpc.io.IOUtils;
-import it.cnr.isti.hpc.wikipedia.article.*;
+import it.cnr.isti.hpc.wikipedia.article.Article;
+import it.cnr.isti.hpc.wikipedia.article.ArticleTest;
+import it.cnr.isti.hpc.wikipedia.article.Language;
 import it.cnr.isti.hpc.wikipedia.parser.ArticleParser;
+import it.cnr.isti.hpc.wikipedia.article.ParagraphWithLinks;
+import it.cnr.isti.hpc.wikipedia.article.Link;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.cnr.isti.hpc.wikipedia.reader.WikipediaArticleReader;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.hasItems;
+
 import org.apache.commons.math3.util.Pair;
 import org.junit.Test;
 
@@ -40,8 +45,7 @@ import org.junit.Test;
 public class EnglishArticleTest extends ArticleTest {
 
 	ArticleParser parser = new ArticleParser(Language.EN);
-	
-	
+
 	@Test
 	public void testParsing() throws IOException {
 		Article a = new Article();
@@ -58,11 +62,11 @@ public class EnglishArticleTest extends ArticleTest {
         }
 
 
-		
-	}
-	
 
-	
+	}
+
+
+
 	@Test
 	public void testMercedes() throws IOException {
 		Article a = new Article();
@@ -70,20 +74,20 @@ public class EnglishArticleTest extends ArticleTest {
 		parser.parse(a, mediawiki);
 		assertTrue(a.getCleanText().startsWith("Mercedes-Benz"));
 		assertEquals(15, a.getCategories().size());
-		
+
 	}
+
 	
-	
-//@Test
-//public void testDisambiguation() throws IOException {
-//	Article a = new Article();
-//	String mediawiki = IOUtils.getFileAsUTF8String("./src/test/resources/en/hdis.txt");
-//	parser.parse(a, mediawiki);
-//	assertTrue(a.isDisambiguation());
-//
-//}
-//
-	
+	@Test
+	public void testDisambiguation() throws IOException {
+		Article a = new Article();
+		String mediawiki = IOUtils.getFileAsUTF8String("./src/test/resources/en/hdis.txt");
+		parser.parse(a, mediawiki);
+		assertTrue(a.isDisambiguation());
+
+	}
+
+
 	@Test
 	public void testNotRedirect() throws IOException {
 		Article a = new Article();
@@ -91,8 +95,6 @@ public class EnglishArticleTest extends ArticleTest {
 		parser.parse(a, mediawiki);
 		System.out.println(a.getRedirect());
 		assertTrue(! a.isRedirect());
-		
-		
 	}
 
     @Test

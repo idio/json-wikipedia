@@ -34,6 +34,8 @@ public class Link {
 	
 	private int start;
 	private int end;
+
+	private final Link.type t;
 	
 	public Link(String id, String anchor, int start, int end) {
 		super();
@@ -44,6 +46,20 @@ public class Link {
 		}
 		this.start = start;
 		this.end = end;
+		this.t = type.UNKNOWN;
+		setAnchor(anchor);
+	}
+
+	public Link(String id, String anchor, int start, int end, Link.type t) {
+		super();
+		try {
+			this.id = java.net.URLDecoder.decode(id.replace("+", "%2B"), "UTF-8");
+		} catch(Exception e) {
+			this.id = id;
+		}
+		this.start = start;
+		this.end = end;
+		this.t = t;
 		setAnchor(anchor);
 	}
 	
@@ -146,5 +162,21 @@ public class Link {
 
 	public void setEnd(int end) {
 		this.end = end;
+	}
+
+	public Link.type getType() {
+		return this.t;
+	}
+
+	public enum type {
+		EXTERNAL,
+		INTERNAL,
+		AUDIO,
+		VIDEO,
+		IMAGE,
+		UNKNOWN;
+
+		private type() {
+		}
 	}
 }

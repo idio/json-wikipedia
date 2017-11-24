@@ -9,10 +9,12 @@ public class ParagraphWithLinks {
 
     private String paragraph;
     private List<Link> links;
+    private List<Ref> refs;
 
-    public ParagraphWithLinks(String paragraph, List<Link> links){
+    public ParagraphWithLinks(String paragraph, List<Link> links, List<Ref> refs){
         this.paragraph = paragraph;
         this.links = links;
+        this.refs = refs;
     }
 
     public String getParagraph(){
@@ -23,4 +25,7 @@ public class ParagraphWithLinks {
         return links;
     }
 
+    public List<Ref> getRefs(){
+        return refs;
+    }
 }
