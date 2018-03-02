@@ -73,6 +73,11 @@
             <version>3.1</version>
         </dependency>
         <dependency>
+            <groupId>com.github.dkpro</groupId>
+            <artifactId>dkpro-jwpl</artifactId>
+            <version>a67ed303ae</version>
+        </dependency>
+        <!-- <dependency>
             <groupId>de.tudarmstadt.ukp.wikipedia</groupId>
             <artifactId>de.tudarmstadt.ukp.wikipedia.api</artifactId>
             <version>1.1.0</version>
@@ -97,6 +102,11 @@
             <artifactId>de.tudarmstadt.ukp.wikipedia.timemachine</artifactId>
             <version>1.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.tgalery</groupId>
+            <artifactId>dkpro-jwpl</artifactId>
+            <version>sweble-SNAPSHOT</version>
+        </dependency> -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.11</artifactId>
@@ -159,12 +169,12 @@
         <dependency>
             <groupId>org.sweble.wikitext</groupId>
             <artifactId>swc-parser-lazy</artifactId>
-            <version>1.1.0</version>
+            <version>3.1.7</version>
         </dependency>
         <dependency>
             <groupId>org.sweble.wikitext</groupId>
             <artifactId>swc-engine</artifactId>
-            <version>1.1.0</version>
+            <version>3.1.7</version>
         </dependency>
     </dependencies>
     <!-- repositories> <repository> <id>lilyproject</id> <url>http://www.lilyproject.org/maven/maven2/deploy/</url> 
@@ -198,14 +208,14 @@
             <id>sonatype-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
-        <repository>
+        <!-- <repository>
             <id>de.tudarmstadt.ukp.wikipedia</id>
             <url>http://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-snapshots/</url>
             <snapshots>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
-        </repository>
+        </repository> -->
     </repositories>
     <build>
         <plugins>
