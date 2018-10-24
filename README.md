@@ -13,28 +13,15 @@ json-wikipedia ![json-wikipedia](https://dl.dropboxusercontent.com/u/4663256/tmp
 
 ## Convert the Wikipedia XML to JSON
 
-### The Docker way
-
-Enjoy a dockerized image:
-
-   `docker run -v <LOCALPATH>:/mnt -i -t dav009/jsonwikipedia  -input <PATHTOWIKI> -output <OUTPUTPATH> -lang <LANG> -action export-parallel`
-
- For example if my `english_wikipedia.dump` lives in : `/david/data/english_wikipedia.dump` I could run it as:
-
-   `docker run -v /david/data:/mnt -i -t dav009/jsonwikipedia -input /mnt/english_wikipedia.dump -output /mnt/english_wikipedia.json -lang en -action export-parallel`
-
-Note that the output path corresponds to a path within the docker container. In the given example the output path is part of the mounted volume, so it will be available at the host machine.
-
-
 ### Doing it yourself
 
 1. Compile the project by doing: `mvn assembly:assembly` the command will produce a JAR file containing all the dependencies the target folder.
-2. Download Spark 1.3.1: http://www.apache.org/dyn/closer.cgi/spark/spark-1.3.1/spark-1.3.1.tgz
+2. Download Spark 2.x:
 3. Download Wikipedia Dump ( https://dumps.wikimedia.org/backup-index.html )
 4. Uncompress the Wikipedia Dump
 5. do:
 
-	SPARKFOLDER/bin/spark-submit --driver-memory 10G --class it.cnr.isti.hpc.wikipedia.cli.MediawikiToJsonCLI json-wikipedia-1.0.0-jar-with-dependencies.jar -input <PATHTODBPEDIADUMP> -output <PATHTONEWJSONPEDIA> -lang <LANG> -action export-parallel
+	SPARKFOLDER/bin/spark-submit --driver-memory 10G --class it.cnr.isti.hpc.wikipedia.cli.MediawikiToJsonCLI json-wikipedia-<VERSION>-jar-with-dependencies.jar -input <PATHTODBPEDIADUMP> -output <PATHTONEWJSONPEDIA> -lang <LANG> -action export-parallel
 
 this produces in `<PATHTONEWJSONPEDIA>` the JSON version of the dump
 

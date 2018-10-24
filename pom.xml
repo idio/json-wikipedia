@@ -75,27 +75,27 @@
         <dependency>
             <groupId>de.tudarmstadt.ukp.wikipedia</groupId>
             <artifactId>de.tudarmstadt.ukp.wikipedia.api</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.tudarmstadt.ukp.wikipedia</groupId>
             <artifactId>de.tudarmstadt.ukp.wikipedia.parser</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.tudarmstadt.ukp.wikipedia</groupId>
             <artifactId>de.tudarmstadt.ukp.wikipedia.datamachine</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.tudarmstadt.ukp.wikipedia</groupId>
             <artifactId>de.tudarmstadt.ukp.wikipedia.revisionmachine</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.tudarmstadt.ukp.wikipedia</groupId>
             <artifactId>de.tudarmstadt.ukp.wikipedia.timemachine</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -159,20 +159,20 @@
         <dependency>
             <groupId>org.sweble.wikitext</groupId>
             <artifactId>swc-parser-lazy</artifactId>
-            <version>1.1.0</version>
+            <version>3.1.9</version>
         </dependency>
         <dependency>
             <groupId>org.sweble.wikitext</groupId>
             <artifactId>swc-engine</artifactId>
-            <version>1.1.0</version>
+            <version>3.1.9</version>
         </dependency>
     </dependencies>
-    <!-- repositories> <repository> <id>lilyproject</id> <url>http://www.lilyproject.org/maven/maven2/deploy/</url> 
-        <releases> <enabled>true</enabled> </releases> <snapshots> <enabled>false</enabled> 
-        </snapshots> </repository> <repository> <id>info-bliki-repository</id> <url>http://gwtwiki.googlecode.com/svn/maven-repository/</url> 
-        <releases> <enabled>true</enabled> </releases> <snapshots> <enabled>false</enabled> 
-        </snapshots> </repository> <repository> <id>ontotext</id> <url>http://maven.ontotext.com/content/repositories/public/</url> 
-        <releases> <enabled>true</enabled> </releases> <snapshots> <enabled>false</enabled> 
+    <!-- repositories> <repository> <id>lilyproject</id> <url>http://www.lilyproject.org/maven/maven2/deploy/</url>
+        <releases> <enabled>true</enabled> </releases> <snapshots> <enabled>false</enabled>
+        </snapshots> </repository> <repository> <id>info-bliki-repository</id> <url>http://gwtwiki.googlecode.com/svn/maven-repository/</url>
+        <releases> <enabled>true</enabled> </releases> <snapshots> <enabled>false</enabled>
+        </snapshots> </repository> <repository> <id>ontotext</id> <url>http://maven.ontotext.com/content/repositories/public/</url>
+        <releases> <enabled>true</enabled> </releases> <snapshots> <enabled>false</enabled>
         </snapshots> </repository> </repositories -->
     <repositories>
         <repository>
@@ -223,7 +223,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
-                     <finalName>${project.artifactId}-${project.customVersion}</finalName>
+                    <finalName>${project.artifactId}-${project.customVersion}</finalName>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
@@ -247,8 +247,8 @@
                         <id>scala-compile-first</id>
                         <phase>process-resources</phase>
                         <goals>
-                        <goal>add-source</goal>
-                        <goal>compile</goal>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
