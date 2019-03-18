@@ -65,7 +65,7 @@ class WikipediaLocaleGenerator:
         """
         returns long language name 
         """
-        language = pycountry.languages.get(alpha2=self.language)
+        language = pycountry.languages.get(alpha_2=self.language)
         # some languages will be returned as "Spanish; castellano"
         language = language.name.split(";")[0]
         return language
