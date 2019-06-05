@@ -173,6 +173,11 @@ public class WikipediaArticleReader {
 				return;
 			}
 
+			if (page.isModule()){
+			    type = Type.MODULE;
+			    return;
+			}
+
 			if (page.isProject()) {
 				type = Type.PROJECT;
 				return;
