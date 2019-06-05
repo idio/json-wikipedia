@@ -172,7 +172,12 @@ public class WikipediaArticleReader {
 				type = Type.USERTALK;
 				return;
 			}
-
+			
+			if (page.isModule()){
+				type = Type.MODULE;
+				return;
+			}
+			
 			if (page.isProject()) {
 				type = Type.PROJECT;
 				return;
