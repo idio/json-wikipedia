@@ -15,8 +15,8 @@
     <properties>
         <project.source.charset>UTF-8</project.source.charset>
         <project.source.encoding>UTF-8</project.source.encoding>
-        <java.version.source>1.8</java.version.source>
-        <java.version.target>1.8</java.version.target>
+        <java.version.source>11</java.version.source>
+        <java.version.target>11</java.version.target>
         <project.customVersion>${project.version}</project.customVersion>
     </properties>
     <developers>
@@ -211,17 +211,16 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <charset>${project.source.charset}</charset>
                     <encoding>${project.source.encoding}</encoding>
-                    <source>${java.version.source}</source>
-                    <target>${java.version.target}</target>
+		    <release>${java.version.target}</release>
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
+                <version>3.1.1</version>
                 <configuration>
                     <finalName>${project.artifactId}-${project.customVersion}</finalName>
                     <descriptorRefs>
@@ -232,7 +231,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9</version>
+                <version>3.1.1</version>
                 <configuration>
                     <reportOutputDirectory>javadoc</reportOutputDirectory>
                     <destDir>javadoc</destDir>
@@ -241,6 +240,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+		<version>3.0.0-M4</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
