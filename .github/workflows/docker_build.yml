@@ -1,0 +1,15 @@
+name: build_docker_by_commit
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "contains(github.event.head_commit.message, '[docker]')"
+    steps:
+      - uses: actions/checkout@v1
+      - uses: Azure/docker-login@v1
+        with:
+          login-server: fandango.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - run: |
+          TAG=$GITHUB_SHA make publish-ecr
