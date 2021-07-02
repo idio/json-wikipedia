@@ -1,0 +1,32 @@
+name: build_docker_on_changes_to_master_dev
+on:
+  push:
+    branches:
+      - master
+      - development
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: Azure/docker-login@v1
+        with:
+          login-server: fandango.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Getting brach name and Versions
+        id: vars
+        run:
+          echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+          echo ::set-output name=version::$(cat VERSION)
+
+
+      - name: Publish image by branch-name and github hash
+        run: |
+          TAG=$GITHUB_SHA make publish-ecr
+          TAG=${{steps.vars.outputs.short_ref}} make publish-ecr
+      - name: Publish image by version if release
+        if: github.ref == "master"
+        run: |
+          TAG=${{steps.vars.outputs.version}} make publish-ecr
+

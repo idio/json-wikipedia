@@ -9,6 +9,9 @@ build:
 clean:
 	mvn clean
 
+publish-ecr: publish_acr.sh
+	./publish_acr.sh
+
 # phonies
 
 .PHONY: default test build clean
