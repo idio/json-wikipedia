@@ -12,4 +12,4 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - run: |
-          TAG=$GITHUB_SHA make publish-ecr
+          TAG=$GITHUB_SHA make publish-acr

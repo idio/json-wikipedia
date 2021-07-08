@@ -9,6 +9,8 @@ RUN yes | apt-get install -y build-essential maven
 COPY Makefile ./
 COPY VERSION ./
 COPY src ./src
+COPY bin ./bin
 COPY pom.xml ./
 RUN make build
-ENTRYPOINT ["/var/lib/spark/bin/spark-submit"]
+
+ENTRYPOINT ["bin/jsonpedia.sh"]

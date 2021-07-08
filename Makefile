@@ -9,7 +9,7 @@ build:
 clean:
 	mvn clean
 
-publish-ecr: publish_acr.sh
+publish-acr: publish_acr.sh
 	./publish_acr.sh
 
 # phonies
