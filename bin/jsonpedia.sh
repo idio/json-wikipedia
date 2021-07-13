@@ -9,4 +9,5 @@ set -e
     --lang $3 \
     --action export-parallel
 
+mkdir -p  $(dirname "$2")
 cat /mnt/data/output_parts/*.jsonl > $2
