@@ -17,6 +17,7 @@
         <project.source.encoding>UTF-8</project.source.encoding>
         <java.version.source>1.8</java.version.source>
         <java.version.target>1.8</java.version.target>
+        <project.customVersion>${project.version}</project.customVersion>
     </properties>
     <developers>
         <developer>
@@ -222,7 +223,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
-                    <finalName>${project.artifactId}</finalName>
+                    <finalName>${project.artifactId}-${project.customVersion}</finalName>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
